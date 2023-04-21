@@ -1,0 +1,10 @@
+{
+  "name": "@nashural-paid-materials/service-client",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {},
+  "keywords": [],
+  "author": "YChebotaev <yury.79120345101@gmail.com>",
+  "license": "UNLICENSED"
+}

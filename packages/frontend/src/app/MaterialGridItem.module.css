@@ -1,0 +1,31 @@
+.materialGridItem {
+  display: flex;
+  flex-flow: column;
+  gap: 10px;
+}
+
+.imageWrapper {
+  object-fit: cover;
+}
+
+.preview {
+  width: 100%;
+}
+
+.name {
+  font-weight: bold;
+}
+
+.description {
+}
+
+.footer {
+}
+
+.more {
+  display: inline-block;
+  background-color: #0074a0;
+  padding: 10px 20px;
+  color: #ffffff;
+  text-decoration: none;
+}

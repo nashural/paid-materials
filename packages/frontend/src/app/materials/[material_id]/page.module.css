@@ -1,0 +1,49 @@
+.image {
+  width: 100%;
+}
+
+.form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.formInner {
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  background-color: #e2e2e2;
+  padding: 10px 20px;
+  border-radius: 6px;
+}
+
+.formTitle {
+  text-align: center;
+  font-size: 1.2rem;
+  font-family: "Roboto Bold";
+}
+
+.formText {
+  text-align: center;
+}
+
+.formControls {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.formLabel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.formInput {
+}
+
+.formButton {
+}

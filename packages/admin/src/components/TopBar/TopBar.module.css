@@ -1,0 +1,25 @@
+.topBar {
+  display: flex;
+  gap: 10px;
+  background-color: #e2e2e2;
+}
+
+.logo {
+  display: flex;
+  gap: 10px;
+}
+
+.logoPrimary {
+  color: #292929;
+}
+
+.logoSecondary {
+  color: #656565;
+}
+
+.menu {
+  display: flex;
+}
+
+.menuLink {
+}

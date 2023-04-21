@@ -1,0 +1,14 @@
+{
+  "name": "@nashural-paid-materials/main",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "./packages/*"
+  ],
+  "keywords": [],
+  "author": "YChebotaev <yury.79120345101@gmail.com>",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "turbo": "^1.8.6"
+  }
+}
