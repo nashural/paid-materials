@@ -12,6 +12,7 @@ exports.up = function (knex) {
       table.dateTime('init_at')
       table.text('status')
       table.dateTime('status_at')
+      table.boolean('is_paid')
     })
 };
 

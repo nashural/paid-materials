@@ -144,6 +144,16 @@ export const createClient = (baseURL: string, token: string) => {
 
       return resp.json()
     },
+    async getFile(file_id: number): Promise<FileServiceType> {
+      const url = new URL(`/api/images/${file_id}`, baseURL)
+      const resp = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      return resp.json()
+    },
     async createMaterialSubscription(material_id: string, { email }: { email: string }): Promise<Subscription> {
       const url = new URL(`/api/materials/${material_id}/subscriptions`, baseURL)
       const resp = await fetch(url, {
@@ -178,7 +188,24 @@ export const createClient = (baseURL: string, token: string) => {
         })
       })
 
-      console.log('resp.text()', await resp.clone().text())
+      return resp.json()
+    },
+    async getMaterialSubscriptionOrder(material_id: string, subscription_id: string, order_id: string): Promise<{
+      id: number,
+      material_id: number,
+      subscription_id: number,
+      init: string,
+      init_at: Date,
+      status: string,
+      status_at: Date,
+      is_paid: boolean
+    }> {
+      const url = new URL(`/api/materials/${material_id}/subscriptions/${subscription_id}/orders/${order_id}`, baseURL)
+      const resp = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
 
       return resp.json()
     }

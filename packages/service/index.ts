@@ -314,7 +314,7 @@ service.post<{
         ]
       },
       // dueDate // TODO: Уточнить
-      notificationUrl: `${process.env['SERVICE_URL']}/materials/${material_id}/subscriptions/${subscription_id}/orders/${order_id}/status`,
+      notificationUrl: `${process.env['SERVICE_URL']}/api/materials/${material_id}/subscriptions/${subscription_id}/orders/${order_id}/status`,
       successUrl: `${process.env['FRONTEND_URL']}/materials/${material_id}/subscriptions/${subscription_id}/orders/${order_id}/success`,
       failUrl: `${process.env['FRONTEND_URL']}/materials/${material_id}/subscriptions/${subscription_id}/orders/${order_id}/fail`,
       language: 'RU',
@@ -380,19 +380,40 @@ service.post<{
   }
 })
 
+service.get<{
+  Params: {
+    material_id: string
+    subscription_id: string
+    order_id: string
+  }
+}>(
+  '/api/materials/:material_id/subscriptions/:subscription_id/orders/:order_id',
+  {
+    async handler({ params: { order_id } }) {
+      const order = await knex(knexfile)
+        .from('orders')
+        .where('id', order_id)
+        .first()
+
+      return order
+    }
+  }
+)
+
 service.post<{
   Body: {
-    ecommKey: string
-    paymentId: string
-    amount: string
+    ecommKey: number
+    paymentId: number
+    amount: number
     currency: string
     orderId: number
     paymentType: string
     success: boolean
     status: string
     errorCode: string
-    paymentUrl: string
-    message: string
+    // paymentUrl: string
+    // message: string
+    token: string
   },
   Params: {
     material_id: string
@@ -400,52 +421,53 @@ service.post<{
     order_id: string
   }
 }>('/api/materials/:material_id/subscriptions/:subscription_id/orders/:order_id/status', {
-  schema: {
-    body: {
-      type: 'object',
-      properties: {
-        ecommKey: { type: 'string' },
-        paymentId: { type: 'string' },
-        amount: { type: 'string' },
-        currency: { type: 'string' },
-        orderId: { type: 'number' },
-        paymentType: { type: 'string' },
-        success: { type: 'boolean' },
-        status: { type: 'string' },
-        errorCode: { type: 'string' },
-        paymentUrl: { type: 'string' },
-        message: { type: 'string' },
-      },
-      required: [
-        'ecommKey',
-        'paymentId',
-        'amount',
-        'currency',
-        'orderId',
-        'paymentType',
-        'success',
-        'status',
-        'errorCode',
-        'paymentUrl',
-        'message'
-      ]
-    },
-    params: {
-      type: 'object',
-      properties: {
-        material_id: { type: 'string' },
-        subscription_id: { type: 'string' },
-        order_id: { type: 'string' }
-      },
-      required: ['material_id', 'subscription_id', 'order_id']
-    }
-  },
-  async handler({ params: { order_id }, body }) {
+  // schema: {
+  //   body: {
+  //     type: 'object',
+  //     properties: {
+  //       ecommKey: { type: 'number' },
+  //       paymentId: { type: 'number' },
+  //       amount: { type: 'number' },
+  //       currency: { type: 'string' },
+  //       orderId: { type: 'number' },
+  //       paymentType: { type: 'string' },
+  //       success: { type: 'boolean' },
+  //       status: { type: 'string' },
+  //       errorCode: { type: 'string' },
+  // //       paymentUrl: { type: 'string' },
+  // //      message: { type: 'string' },
+  //     },
+  //     required: [
+  //       'ecommKey',
+  //       'paymentId',
+  //       'amount',
+  //       'currency',
+  //       'orderId',
+  //       'paymentType',
+  //       'success',
+  //       'status',
+  //       'errorCode',
+  //       'paymentUrl',
+  //       'message'
+  //     ]
+  //   },
+  //   params: {
+  //     type: 'object',
+  //     properties: {
+  //       material_id: { type: 'string' },
+  //       subscription_id: { type: 'string' },
+  //       order_id: { type: 'string' }
+  //     },
+  //     required: ['material_id', 'subscription_id', 'order_id']
+  //   }
+  // },
+  async handler({ params: { order_id, subscription_id }, body }) {
     await knex(knexfile)
       .where('id', order_id)
       .update({
         status: JSON.stringify(body, null, 2),
-        status_at: new Date()
+        status_at: new Date(),
+        is_paid: body.status === 'FULL_PAID'
       })
       .into('orders')
 
