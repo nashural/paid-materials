@@ -18,6 +18,7 @@ export const createClient = (baseURL: string, token: string) => {
     async getMaterials(): Promise<Material[]> {
       const url = new URL('/api/materials', baseURL)
       const res = await fetch(url, {
+        cache: 'no-cache',
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -28,6 +29,7 @@ export const createClient = (baseURL: string, token: string) => {
     async getMaterial(material_id: string): Promise<Material> {
       const url = new URL(`/api/materials/${material_id}`, baseURL)
       const res = await fetch(url, {
+        cache: 'no-cache',
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -50,6 +52,7 @@ export const createClient = (baseURL: string, token: string) => {
     }): Promise<Material> {
       const url = new URL('/api/materials', baseURL)
       const resp = await fetch(url, {
+        cache: 'no-cache',
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -81,6 +84,7 @@ export const createClient = (baseURL: string, token: string) => {
     }) {
       const url = new URL(`/api/materials/${material_id}`, baseURL)
       await fetch(url, {
+        cache: 'no-cache',
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -98,6 +102,7 @@ export const createClient = (baseURL: string, token: string) => {
     async deleteMaterial(material_id: string) {
       const url = new URL(`/api/materials/${material_id}`, baseURL)
       await fetch(url, {
+        cache: 'no-cache',
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -106,7 +111,7 @@ export const createClient = (baseURL: string, token: string) => {
     },
     async getMaterialSubscriptions(material_id: string): Promise<Subscription[]> {
       const url = new URL(`/api/materials/${material_id}/subscriptions`, baseURL)
-      const res = await fetch(url);
+      const res = await fetch(url, { cache: 'no-cache' });
 
       return res.json()
     },
@@ -114,6 +119,7 @@ export const createClient = (baseURL: string, token: string) => {
       const url = new URL('/api/files', baseURL)
       const resp = await fetch(url, {
         method: 'POST',
+        cache: 'no-cache',
         headers: {
           'Authorization': `Bearer ${token}`
         },
@@ -126,6 +132,7 @@ export const createClient = (baseURL: string, token: string) => {
       const url = new URL('/api/images', baseURL)
       const resp = await fetch(url, {
         method: 'POST',
+        cache: 'no-cache',
         headers: {
           'Authorization': `Bearer ${token}`
         },
@@ -137,6 +144,7 @@ export const createClient = (baseURL: string, token: string) => {
     async getImage(image_id: number): Promise<ImageServiceType> {
       const url = new URL(`/api/images/${image_id}`, baseURL)
       const resp = await fetch(url, {
+        cache: 'no-cache',
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -145,8 +153,9 @@ export const createClient = (baseURL: string, token: string) => {
       return resp.json()
     },
     async getFile(file_id: number): Promise<FileServiceType> {
-      const url = new URL(`/api/images/${file_id}`, baseURL)
+      const url = new URL(`/api/files/${file_id}`, baseURL)
       const resp = await fetch(url, {
+        cache: 'no-cache',
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -158,6 +167,7 @@ export const createClient = (baseURL: string, token: string) => {
       const url = new URL(`/api/materials/${material_id}/subscriptions`, baseURL)
       const resp = await fetch(url, {
         method: 'POST',
+        cache: 'no-cache',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -179,6 +189,7 @@ export const createClient = (baseURL: string, token: string) => {
       const url = new URL(`/api/materials/${material_id}/subscriptions/${subscription_id}/orders`, baseURL)
       const resp = await fetch(url, {
         method: 'POST',
+        cache: 'no-cache',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -202,10 +213,25 @@ export const createClient = (baseURL: string, token: string) => {
     }> {
       const url = new URL(`/api/materials/${material_id}/subscriptions/${subscription_id}/orders/${order_id}`, baseURL)
       const resp = await fetch(url, {
+        cache: 'no-cache',
         headers: {
           'Authorization': `Bearer ${token}`
         }
       })
+
+      return resp.json()
+    },
+    async createUser(): Promise<{
+      id: number
+    }> {
+      const url = new URL('/api/users', baseURL)
+      const resp = await fetch(url, { cache: 'no-cache' })
+
+      return resp.json()
+    },
+    async getUser(user_id: string): Promise<{ id: number }> {
+      const url = new URL(`/api/users/${user_id}`, baseURL)
+      const resp = await fetch(url, { cache: 'no-cache' })
 
       return resp.json()
     }

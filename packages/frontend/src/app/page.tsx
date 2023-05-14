@@ -1,5 +1,4 @@
 import { createClient } from "@nashural-paid-materials/service-client";
-import { PrimaryLogo } from "@/components/PrimaryLogo";
 
 import MaterialGridItem from "./MaterialGridItem";
 

@@ -11,16 +11,8 @@ export async function POST(request: Request, { params: { material_id, subscripti
     subscription_id: string
   };
 }) {
-  console.log(14)
-
   const formData = await request.formData()
-
-  console.log(18)
-
   const paymentType = formData.get('paymentType') as string
-
-  console.log(22, paymentType)
-
   const { paymentUrl } = await serviceClient.createMaterialSubscriptionOrder(
     material_id,
     subscription_id,
@@ -28,8 +20,6 @@ export async function POST(request: Request, { params: { material_id, subscripti
       paymentType
     }
   )
-
-  console.log(32)
 
   return Response.redirect(paymentUrl)
 }

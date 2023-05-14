@@ -11,6 +11,7 @@ import fastify from 'fastify'
 import knex from 'knex'
 import fastifyMultipart from '@fastify/multipart'
 import fastifyStatic from '@fastify/static'
+import { createTransport } from 'nodemailer'
 import * as knexfile from './knexfile'
 
 const pump = promisify(pipeline)
@@ -29,6 +30,15 @@ const calculateOrderToken = (orderInit: object) => {
 }
 const service = fastify({
   logger: true
+})
+const emailTransport = createTransport({
+  host: 'mail.netangels.ru',
+  secure: false,
+  debug: true,
+  auth: {
+    user: 'noreply@lists.nashural.ru',
+    pass: process.env['SMTP_PASS']
+  }
 })
 
 service.register(fastifyMultipart)
@@ -272,26 +282,22 @@ service.post<{
       paymentType
     }
   }) {
-    console.log(274)
     const material = await knex(knexfile)
       .select()
       .from('materials')
       .where('id', material_id)
       .first()
-    console.log(280, 'material =', material)
     const subscription = await knex(knexfile)
       .select()
       .from('subscriptions')
       .where('id', subscription_id)
       .first()
-    console.log(286, 'subscription =', subscription)
     const [{ id: order_id }] = await knex(knexfile).insert({
       id: Date.now(),
       material_id,
       subscription_id
     }).into('orders')
       .returning('id')
-    console.log(292, 'order_id =', order_id)
     const orderInit = {
       ecommKey: process.env['ECOMM_KEY'],
       amount: material.price,
@@ -322,11 +328,7 @@ service.post<{
       token: '',
     }
 
-    console.log(323, orderInit)
-
     orderInit.token = calculateOrderToken(orderInit)
-
-    console.log(327, orderInit)
 
     await knex(knexfile)
       .where('id', order_id)
@@ -335,12 +337,8 @@ service.post<{
         init_at: new Date()
       })
       .into('orders')
-    
-    console.log(337, "process.env['SDM_ECOMM_GATEWAY_URL'] =", process.env['SDM_ECOMM_GATEWAY_URL'])
 
     const url = new URL('/init', process.env['SDM_ECOMM_GATEWAY_URL'])
-
-    console.log(341, 'url =', url.toString())
 
     const resp = await fetch(url, {
       method: 'POST',
@@ -350,15 +348,7 @@ service.post<{
       body: JSON.stringify(orderInit)
     })
 
-    console.log(resp.status, resp.statusText)
-
-    const respText = await resp.clone().text()
-    console.log('respText.length =', respText.length)
-    console.log(348, 'resp.clone().text()', respText)
-
     const data = await resp.json()
-
-    console.log(352, data)
 
     await knex(knexfile)
       .where('id', order_id)
@@ -368,11 +358,7 @@ service.post<{
       })
       .into('orders')
 
-    console.log(362)
-
     const { paymentUrl } = data
-
-    console.log(366)
 
     return {
       paymentUrl
@@ -461,7 +447,7 @@ service.post<{
   //     required: ['material_id', 'subscription_id', 'order_id']
   //   }
   // },
-  async handler({ params: { order_id, subscription_id }, body }) {
+  async handler({ params: { material_id, order_id, subscription_id }, body }) {
     await knex(knexfile)
       .where('id', order_id)
       .update({
@@ -470,6 +456,45 @@ service.post<{
         is_paid: body.status === 'FULL_PAID'
       })
       .into('orders')
+
+    if (body.status === 'FULL_PAID') {
+      const [
+        subscription,
+        material
+      ] = await Promise.all([
+        knex(knexfile)
+          .select()
+          .from('subscriptions')
+          .where('id', subscription_id)
+          .first(),
+        knex(knexfile)
+          .select()
+          .from('materials')
+          .where('id', material_id)
+          .first()
+      ])
+      const file = await knex(knexfile)
+        .select()
+        .from('files')
+        .where('id', material.file_id)
+        .first()
+
+      console.log('sendMail', {
+        from: 'noreply@lists.nashural.ru',
+        to: subscription.email,
+        subject: material.name,
+        text: `${process.env['SERVICE_URL']}/uploads/${file.filename}`,
+        html: `<a href="${process.env['SERVICE_URL']}/uploads/${file.filename}" download="${file.filename}">Скачать «${material.name}»</a>`
+      })
+
+      await emailTransport.sendMail({
+        from: 'noreply@lists.nashural.ru',
+        to: subscription.email,
+        subject: material.name,
+        text: `${process.env['SERVICE_URL']}/uploads/${file.filename}`,
+        html: `<a href="${process.env['SERVICE_URL']}/uploads/${file.filename}" download="${file.filename}">Скачать «${material.name}»</a>`
+      })
+    }
 
     return true
   }
@@ -527,6 +552,36 @@ service.post('/api/images', async (req) => {
   ))
 
   return knex(knexfile).select().from('images').where('id', id).first()
+})
+
+// #endregion
+
+// #region users
+
+service.post('/api/users', {
+  async handler() {
+    const [{ id }] = await knex(knexfile)
+      .insert({})
+      .into('users')
+      .returning('id')
+
+    return knex(knexfile).select().from('users').where('id', id).first()
+  }
+})
+
+service.get<{
+  Params: {
+    user_id: string
+  }
+}>('/api/users/:user_id', {
+  async handler({ params: { user_id } }) {
+    const user = await knex(knexfile)
+      .from('users')
+      .where('id', user_id)
+      .first()
+
+    return user
+  }
 })
 
 // #endregion
